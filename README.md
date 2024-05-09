@@ -26,7 +26,7 @@ $ open https://cmake.org/Wiki/CMake:CPackPackageGenerators
 ---
 
 
-# 1) Создаем файл CMakeLists.txt в корне репозитория lab06, который мы сначала привязываем к гитхабу
+* 1) Создаем файл CMakeLists.txt в корне репозитория lab06, который мы сначала привязываем к гитхабу
 
 ```bash
 cmake_minimum_required(VERSION 3.4)
