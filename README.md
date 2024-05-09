@@ -26,7 +26,7 @@ $ open https://cmake.org/Wiki/CMake:CPackPackageGenerators
 ---
 
 
-* 1) Создаем файл CMakeLists.txt в корне репозитория lab06, который мы сначала привязываем к гитхабу
+__1) Создаем файл CMakeLists.txt в корне репозитория lab06, который мы сначала привязываем к гитхабу__
 
 ```bash
 cmake_minimum_required(VERSION 3.4)
@@ -39,10 +39,10 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/solver_application)
 include(CPack.cmake)
 ```
 
-Подключение `include(CPack.cmake)` в CMakeLists.txt позволяет использовать функционал CPack для создания пакетов и установочных файлов.
+* Подключение `include(CPack.cmake)` в CMakeLists.txt позволяет использовать функционал CPack для создания пакетов и установочных файлов.
 
 
-# 2) Создаем файл CPack.cmake, где указываем необходимые параметры нашего проекта
+__2) Создаем файл CPack.cmake, где указываем необходимые параметры нашего проекта__
 
 ```bash
 include(InstallRequiredSystemLibraries)
@@ -78,9 +78,9 @@ set(CPACK_RPM_PACKAGE_SUMMARY "solves equations")
 include(CPack)
 ```
 
-# 3) Создаем папку .github/workflows , в которой создаем два файла сборки: CI.yml и CI_release.yml
+__3) Создаем папку .github/workflows , в которой создаем два файла сборки: CI.yml и CI_release.yml__
 
-Назначение 1-го файла:
+* Назначение 1-го файла:
 - Этот файл создает рабочий процесс (workflow) для билдинга проекта в GitHub Actions при каждом push или pull_request в ветку main, он нужен для:
 - Выполняет проверку кода репозитория.
 - Настраивает сборку проекта с помощью CMake.
@@ -110,7 +110,7 @@ jobs:
     run: cmake --build ${{github.workspace}}/build
 ```
 
-Назначение 2-го файла:
+* Назначение 2-го файла:
 - Файл создает рабочий процесс (workflow) для билдинга проекта в GitHub Actions при каждом push нового тэга версии (с тэгом в формате v*.*.*). Он выполняет следующие действия:
 - Запускает сборку проекта.
 - Создает упакованные файлы для различных платформ.
@@ -156,7 +156,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-Для создания тэга пишем в терминал:
+* Для создания тэга пишем в терминал:
 
 ```bash
 Команда:git tag -a v*.*.* -m "v*.*.*"
@@ -166,5 +166,5 @@ jobs:
 ```bash
 Команда:git push origin v1.0.0
 ```
-Все тэги можно посмотреть перейдя по кнопке Tags в репозитории справа от кнопки Branch.
+* Все тэги можно посмотреть перейдя по кнопке Tags в репозитории справа от кнопки Branch.
 
