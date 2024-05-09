@@ -1,10 +1,10 @@
 include(InstallRequiredSystemLibraries)
 
-set(CPACK_PACKAGE_CONTACT makes.k.s@mail.ru)
+set(CPACK_PACKAGE_CONTACT mihail_160505@@mail.ru)
 set(CPACK_PACKAGE_VERSION ${PRINT_VERSION})
 set(CPACK_PACKAGE_NAME "solver")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "static C++ library for solver")
-set(CPACK_PACKAGE_VENDOR "BeamzXD")
+set(CPACK_PACKAGE_VENDOR "kuznetsovvvv")
 set(CPACK_PACKAGE_PACK_NAME "solver-${PRINT_VERSION}")
 
 set(CPACK_SOURCE_INSTALLED_DIRECTORIES 
