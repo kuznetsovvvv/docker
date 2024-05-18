@@ -63,7 +63,7 @@ jobs:
     run: sudo docker build -t logger .
 ```
 
-*Проверяем в GithubActions результаты выполнения.
+* Проверяем в GithubActions результаты выполнения.
 
 
 
