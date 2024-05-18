@@ -14,8 +14,8 @@ jobs:
   steps:
   - uses: actions/checkout@v3
 
-  - name: Configure Solver
-    run: cmake ${{github.workspace}} -B ${{github.workspace}}/build
+  - name: Install Docker
+    run: sudo apt install runc containerd docker.io
 
-  - name: Build Solver
-    run: cmake --build ${{github.workspace}}/build
+  - name: Run Docker
+    run: sudo docker build -t logger .
