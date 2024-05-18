@@ -1,91 +1,44 @@
-## Laboratory work VI
-
-Данная лабораторная работа посвещена изучению средств пакетирования на примере **CPack**
-
-```sh
-$ open https://cmake.org/Wiki/CMake:CPackPackageGenerators
-```
+## Лабораторная №8
 
 
+# Tasks
+1. Создать публичный репозиторий с названием lab08 на сервисе GitHub
+2. Ознакомиться со ссылками учебного материала
+3. Выполнить инструкцию учебного материала
+4. Составить отчет и отправить ссылку личным сообщением в Slack
 
-## Homework
-
-После того, как вы настроили взаимодействие с системой непрерывной интеграции,</br>
-обеспечив автоматическую сборку и тестирование ваших изменений, стоит задуматься</br>
-о создание пакетов для измениний, которые помечаются тэгами (см. вкладку [releases](https://github.com/tp-labs/lab06/releases)).</br>
-Пакет должен содержать приложение _solver_ из [предыдущего задания](https://github.com/tp-labs/lab03#задание-1)
-Таким образом, каждый новый релиз будет состоять из следующих компонентов:
-- архивы с файлами исходного кода (`.tar.gz`, `.zip`)
-- пакеты с бинарным файлом _solver_ (`.deb`, `.rpm`, `.msi`, `.dmg`)
-
-
----
-
-Для начала клонируем репозиторий 4 лабораторной работы с уже готовыми файлами CMakeLists.txt для всех библиотек
-
----
-
-
-__1) Создаем файл CMakeLists.txt в корне репозитория lab06, который мы сначала привязываем к гитхабу__
-
+# Выполнение:
+Клонируем репозиторий 6 лабораторной работы:
 ```bash
-cmake_minimum_required(VERSION 3.4)
-project(lab06)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/solver_application)
-
-include(CPack.cmake)
+Команда:git clone https://github.com/kuznetsovvvv/lab06 lab08
 ```
 
-* Подключение `include(CPack.cmake)` в CMakeLists.txt позволяет использовать функционал CPack для создания пакетов и установочных файлов.
+Удаляем файлы, связанные с CPack.
 
-
-__2) Создаем файл CPack.cmake, где указываем необходимые параметры нашего проекта__
-
+Создаём Dockerfile и пишем в него:
 ```bash
-include(InstallRequiredSystemLibraries)
+FROM ubuntu:18.04
 
-set(CPACK_PACKAGE_CONTACT mihail_160505@@mail.ru)
-set(CPACK_PACKAGE_VERSION ${PRINT_VERSION})
-set(CPACK_PACKAGE_NAME "solver")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "static C++ library for solver")
-set(CPACK_PACKAGE_VENDOR "kuznetsovvvv")
-set(CPACK_PACKAGE_PACK_NAME "solver-${PRINT_VERSION}")
+RUN apt update
+RUN apt install -yy gcc g++ cmake
 
-set(CPACK_SOURCE_INSTALLED_DIRECTORIES 
-  "${CMAKE_SOURCE_DIR}/solver_application; solver_application"
-  "${CMAKE_SOURCE_DIR}/solver_lib; solver_lib"
-  "${CMAKE_SOURCE_DIR}/formatter_ex_lib; formatter_ex_lib"
-  "${CMAKE_SOURCE_DIR}/formatter_lib; formatter_lib")
+COPY . print/
+WORKDIR print
 
-set(CPACK_RESOURCE_FILE_README ${CMAKE_CURRENT_SOURCE_DIR}/README.md)
+RUN cmake -H. -B_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=_install
+RUN cmake --build _build
 
-set(CPACK_SOURCE_GENERATOR "TGZ;ZIP")
+ENV LOG_PATH /home/logs/log.txt
 
-set(CPACK_DEBIAN_PACKAGE_PREDEPENDS "cmake >= 3.0")
-set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
+VOLUME /home/logs
 
-set(CPACK_DEBIAN_PACKAGE_VERSION ${PRINT_VERSION})
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "all")
-set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "solves equations")
+WORKDIR _install/bin
 
-set(CPACK_GENERATOR "DEB;RPM")
-
-set(CPACK_RPM_PACKAGE_SUMMARY "solves equations")
-
-include(CPack)
+ENTRYPOINT ./demo
 ```
 
-__3) Создаем папку .github/workflows , в которой создаем два файла сборки: CI.yml и CI_release.yml__
+В дирректории .github/workflows удаляем старые файлы сборки, создаем CI.yml, пишем с помощью текстового редактора nano:
 
-* Назначение 1-го файла:
-- Этот файл создает рабочий процесс (workflow) для билдинга проекта в GitHub Actions при каждом push или pull_request в ветку main, он нужен для:
-- Выполняет проверку кода репозитория.
-- Настраивает сборку проекта с помощью CMake.
-
-CI.yml:
 ```bash
 name: CMake
 
@@ -103,68 +56,23 @@ jobs:
   steps:
   - uses: actions/checkout@v3
 
-  - name: Configure Solver
-    run: cmake ${{github.workspace}} -B ${{github.workspace}}/build
+  - name: Install Docker
+    run: sudo apt install runc containerd docker.io
 
-  - name: Build Solver
-    run: cmake --build ${{github.workspace}}/build
+  - name: Run Docker
+    run: sudo docker build -t logger .
 ```
 
-* Назначение 2-го файла:
-- Файл создает рабочий процесс (workflow) для билдинга проекта в GitHub Actions при каждом push нового тэга версии (с тэгом в формате v*.*.*). Он выполняет следующие действия:
-- Запускает сборку проекта.
-- Создает упакованные файлы для различных платформ.
-- Создает и публикует релиз в GitHub с созданными артефактами (пакеты DEB, RPM, TAR.GZ, ZIP).
-     
-CI_release.yml:
-```bash
-name: CMake
+*Проверяем в GithubActions результаты выполнения.
 
-on:
- push:
-   tags:
-     - v*.*.*
 
-jobs: 
 
-  build_packages_Linux:
 
-    runs-on: ubuntu-latest
-    
-    permissions:
-      contents: write
 
-    steps:
-    - uses: actions/checkout@v3
 
-    - name: Configure Solver
-      run: cmake ${{github.workspace}} -B ${{github.workspace}}/build -D PRINT_VERSION=${GITHUB_REF_NAME#v}
 
-    - name: Build Solver
-      run: cmake --build ${{github.workspace}}/build
 
-    - name: Build package
-      run: cmake --build ${{github.workspace}}/build --target package
 
-    - name: Build source package
-      run: cmake --build ${{github.workspace}}/build --target package_source
 
-    - name: Make a release
-      uses: ncipollo/release-action@v1.14.0
-      with:
-        artifacts: "build/*.deb,build/*.rpm,build/*.tar.gz,build/*.zip"
-        token: ${{ secrets.GITHUB_TOKEN }}
-```
 
-* Для создания тэга пишем в терминал:
-
-```bash
-Команда:git tag -a v*.*.* -m "v*.*.*"
-```
-(Пишем версию тэга, например:git tag -a v1.0.0 -m "v1.0.0")
-После пушим тэг:
-```bash
-Команда:git push origin v1.0.0
-```
-* Все тэги можно посмотреть перейдя по кнопке Tags в репозитории справа от кнопки Branch.
 
